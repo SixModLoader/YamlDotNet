@@ -30,17 +30,72 @@ namespace YamlDotNet.PerformanceTests.vlatest
     [MemoryDiagnoser]
     public class ReceiptTest
     {
-        private readonly Receipt _receipt = new Receipt();
-        private readonly StringWriter _buffer = new StringWriter();
+#if DEBUG
+        [GlobalSetup]
+        public void Debug()
+        {
+            System.Diagnostics.Debugger.Launch();
+        }
+#endif
+
+        [IterationSetup]
+        public void Setup()
+        {
+            _writer = new StringWriter();
+            _reader = new StringReader(_yaml);
+        }
+
+        private readonly Receipt _receipt = TestData.Graph;
+        private readonly string _yaml = @"
+receipt: Oz-Ware Purchase Invoice
+date: 2007-08-06T00:00:00.0000000
+customer:
+  given: Dorothy
+  family: Gale
+items:
+- partNo: A4786
+  descrip: Water Bucket (Filled)
+  price: 1.47
+  quantity: 4
+- partNo: E1628
+  descrip: High Heeled ""Ruby"" Slippers
+  price: 100.27
+  quantity: 1
+billTo: &o0
+  street: >-
+    123 Tornado Alley
+    Suite 16
+  city: East Westville
+  state: KS
+shipTo: *o0
+specialDelivery: >-
+  Follow the Yellow Brick
+  Road to the Emerald City.
+  Pay no attention to the
+  man behind the curtain.
+";
+
+        private StringWriter _writer;
+        private StringReader _reader;
 
         private readonly ISerializer _serializer = new SerializerBuilder()
             .WithNamingConvention(CamelCaseNamingConvention.Instance)
             .Build();
 
-        [Benchmark(Description = "Serialize vlatest")]
-        public void Serialize()
+        private readonly IDeserializer _deserializer = new DeserializerBuilder()
+            .WithNamingConvention(CamelCaseNamingConvention.Instance)
+            .Build();
+
+        //[Benchmark(Description = "Serialize vlatest")]
+        //public void Serialize()
+        //{
+        //    _serializer.Serialize(_writer, _receipt);
+        //}
+
+        [Benchmark(Description = "Deserialize vlatest")]
+        public void Deserialize()
         {
-            _serializer.Serialize(_buffer, _receipt.Graph);
+            _deserializer.Deserialize<Receipt>(_reader);
         }
     }
 }

@@ -29,7 +29,7 @@ namespace YamlDotNet.PerformanceTests.v1_2_1
     [MemoryDiagnoser]
     public class ReceiptTest
     {
-        private readonly Receipt _receipt = new Receipt();
+        private readonly Receipt _receipt = TestData.Graph;
         private readonly StringWriter _buffer = new StringWriter();
 
         private readonly Serializer _serializer = new Serializer();
@@ -37,7 +37,7 @@ namespace YamlDotNet.PerformanceTests.v1_2_1
         [Benchmark(Description = "Serialize v1.2.1")]
         public void Serialize()
         {
-            _serializer.Serialize (_buffer, _receipt.Graph);
+            _serializer.Serialize (_buffer, _receipt);
         }
     }
 }
